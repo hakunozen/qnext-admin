@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../App.scss' as *;
 
 .content {
@@ -61,4 +62,225 @@
     font-size: 1.2rem;
     font-weight: 600;
   }
+}
+
+.dashboard-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: $black;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.report-btn {
+  height: 2.6rem;
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  background: $primary-color;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s, opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: $black;
+    font-weight: 500;
+  }
+
+  .kpi-value {
+    margin: 0.25rem 0 0;
+    font-size: 2rem;
+    line-height: 1;
+    color: $black;
+    font-weight: 700;
+  }
+}
+
+.kpi-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $primary-color;
+  background: color.adjust($primary-color, $lightness: 56%);
+  font-size: 1.25rem;
+}
+
+.dashboard-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-panel {
+  background: white;
+  border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  select {
+    min-width: 160px;
+    height: 2.5rem;
+    border-radius: 10px;
+    border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+    background: white;
+    color: $black;
+    padding: 0 0.75rem;
+    font-size: 0.95rem;
+  }
+}
+
+.report-secondary-btn {
+  height: 2.6rem;
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  background: white;
+  color: $black;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s;
+
+  &:hover {
+    filter: brightness(0.98);
+  }
+}
+
+.dashboard-report-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.dashboard-report-modal {
+  width: min(1100px, 100%);
+  height: min(90vh, 800px);
+  background: white;
+  border-radius: 12px;
+  border: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dashboard-report-modal-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    margin: 0;
+    color: $black;
+    font-size: 1.1rem;
+  }
+}
+
+.report-close-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: $faded-alt;
+  cursor: pointer;
+}
+
+.dashboard-report-modal-body {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+}
+
+.dashboard-report-preview {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #dfdfdf;
+  border-radius: 8px;
+  background: white;
+}
+
+.dashboard-report-modal-actions {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid color.adjust($faded-alt, $lightness: 18%);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
 }

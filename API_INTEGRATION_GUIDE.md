@@ -4,6 +4,12 @@
 
 Your application is **API-ready** with the following setup:
 
+### Demo Data Files (JSON)
+
+For local testing before backend integration, edit JSON demo files listed in README:
+
+- See `README.md` → **Demo Data Files (JSON)** and **Reset Demo Data (Quick)**.
+
 ### What's Already Configured:
 
 1. ✅ **Axios Instance** (`src/services/api.js`)

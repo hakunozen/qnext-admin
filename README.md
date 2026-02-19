@@ -5,8 +5,8 @@ A modern admin dashboard application built with React, Vite, and SCSS. Features 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
-- **Node.js** (v16 or higher recommended)
-- **npm** or **yarn** package manager
+- **Node.js** (v20 or higher recommended)
+- **npm** package manager
 - **Git** for version control
 
 ## Getting Started
@@ -26,7 +26,55 @@ npm install
 
 This will install all required dependencies including React, Vite, and SCSS tools.
 
-### 3. Run the Development Server
+### 3. Configure Environment Variables
+
+Copy the example env file and set your Firebase project values:
+
+```bash
+cp .env.example .env
+```
+
+For Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Required values in `.env`:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+> `VITE_API_URL` is optional unless you are using additional backend API endpoints.
+
+### Demo Data Files (JSON)
+
+If you are testing locally with temporary data, edit these JSON files:
+
+- `src/data/busesData.json` — bus records used by Buses and Dashboard charts
+- `src/data/activationRequestsData.json` — account activation requests used by Requests page
+- `src/data/authMockData.json` — mock login user profile and auth error message
+
+If changes do not appear right away, clear this local storage key in the browser and refresh:
+
+- `qnext_admin_buses`
+
+#### Reset Demo Data (Quick)
+
+Open browser DevTools Console and run:
+
+```javascript
+localStorage.removeItem('qnext_admin_buses');
+location.reload();
+```
+
+This resets buses back to values in `src/data/busesData.json`.
+
+### 4. Run the Development Server
 
 ```bash
 npm run start
@@ -39,30 +87,24 @@ The page will automatically reload when you make changes.
 
 ## Authentication
 
-This application includes a complete JWT-based authentication system with the following features:
+This application now uses **Firebase Authentication + Firestore admin checks**:
 
-- ✅ **Login/Logout** functionality
-- ✅ **Protected routes** - Must be logged in to access the dashboard
-- ✅ **JWT token management** with automatic refresh
-- ✅ **Persistent sessions** using localStorage
-- ✅ **API-ready** with axios interceptors
+- ✅ **Login/Logout** via Firebase Auth
+- ✅ **Protected routes** through auth state in context
+- ✅ **Admin-only access** by checking `users/{uid}.isAdmin === true` in Firestore
+- ✅ **Persistent sessions** through Firebase auth state
 
-### Mock Login (Development Mode)
+### Firebase Setup Requirements
 
-For development, the app uses mock authentication. Enter **any email and password** to log in:
+To sign in successfully, your Firebase project must have:
 
-```
-Email: admin@example.com
-Password: demo123
-```
+1. **Authentication enabled** (Email/Password provider)
+2. A **Firestore `users` collection**
+3. A document for each admin user where:
+   - document ID = Firebase Auth user UID
+   - field `isAdmin` = `true`
 
-### Connecting to Your Backend
-
-1. Copy `.env.example` to `.env`
-2. Update `VITE_API_URL` with your backend API URL
-3. Replace mock API calls in `src/services/api.js` with real endpoints
-
-📖 See **[AUTHENTICATION.md](AUTHENTICATION.md)** for complete setup guide and API integration instructions.
+📖 See **[AUTHENTICATION.md](AUTHENTICATION.md)** for full Firebase setup and troubleshooting.
 
 ## Available Scripts
 
@@ -91,9 +133,11 @@ qnext-admin/
 │   ├── context/         # React Context providers
 │   │   └── AuthContext.jsx
 │   ├── services/        # API services
-│   │   └── api.js
+│   │   ├── api.js
+│   │   └── authService.js
 │   ├── utils/           # Utility functions
 │   │   └── auth.js
+│   ├── firebase.js       # Firebase app/auth/firestore initialization
 │   ├── styles/          # Component-specific styles
 │   │   ├── Body.scss
 │   │   ├── Header.scss
@@ -173,7 +217,13 @@ Ensure you're using `npm start` instead of `npm run dev` to run both the SCSS wa
 If port 5173 is already in use, Vite will automatically try the next available port. Check the terminal output for the actual URL.
 
 ### Module not found errors
-Try deleting `node_modules/` and `package-lock.json`, then run `npm install` again.
+Try deleting `node_modules/` and running `npm install` again.
+
+### Firebase config errors
+Verify `.env` exists and all `VITE_FIREBASE_*` values are set correctly for your Firebase project.
+
+### Access denied after login
+Check Firestore `users/{uid}` and ensure `isAdmin` is set to `true` for your authenticated user.
 
 ## Contributing
 
