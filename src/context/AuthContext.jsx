@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
           const userData = await getCurrentUser();
           setUser(userData);
           setIsAuthenticated(true);
-        } catch (error) {
+        } catch {
           // Token is invalid or expired
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
