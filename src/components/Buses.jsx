@@ -2,38 +2,26 @@ import { useState, useEffect } from 'react';
 import '../styles/Body.scss';
 import '../styles/Requests.scss';
 import TableSkeletonRows from './TableSkeletonRows';
+import {
+  getArchivedBusesData,
+  getBusesData,
+  saveArchivedBusesData,
+  saveBusesData,
+} from '../data/busesData';
 // Uncomment when integrating with API:
 // import { fetchBuses, createBus, updateBus, deleteBus } from '../services/api';
 
-// Initial bus data - One Ayala, Philippines
-// Note: Bus attendant is the source of truth for bus information
-// TODO: Remove this when API is integrated
-const initialBuses = [
-  { id: 1, busNumber: 'OA-101', route: 'One Ayala - BGC', busCompany: 'JAM Transit', status: 'Active', plateNumber: 'UVW-823', capacity: 45, busAttendant: 'Juan Dela Cruz', busCompanyEmail: 'operations@jamtransit.com.ph', busCompanyContact: '+63 917 123 4567', registeredDestination: 'Bonifacio Global City, Taguig', busPhoto: null, lastUpdated: new Date('2026-02-18T10:30:00').getTime() },
-  { id: 2, busNumber: 'OA-102', route: 'One Ayala - Ortigas', busCompany: 'RRCG Transport', status: 'Active', plateNumber: 'XYZ-456', capacity: 50, busAttendant: 'Maria Santos', busCompanyEmail: 'info@rrcgtransport.ph', busCompanyContact: '+63 918 234 5678', registeredDestination: 'Ortigas Center, Pasig City', busPhoto: null, lastUpdated: new Date('2026-02-18T09:15:00').getTime() },
-  { id: 3, busNumber: 'OA-103', route: 'One Ayala - Quezon City', busCompany: 'Froehlich Tours', status: 'Maintenance', plateNumber: 'ABC-789', capacity: 48, busAttendant: 'Pedro Ramirez', busCompanyEmail: 'contact@froehlich.com.ph', busCompanyContact: '+63 919 345 6789', registeredDestination: 'Quezon City Circle, QC', busPhoto: null, lastUpdated: new Date('2026-02-17T14:20:00').getTime() },
-  { id: 4, busNumber: 'OA-104', route: 'One Ayala - Mandaluyong', busCompany: 'HM Transport', status: 'Active', plateNumber: 'DEF-234', capacity: 42, busAttendant: 'Rosa Garcia', busCompanyEmail: 'support@hmtransport.ph', busCompanyContact: '+63 920 456 7890', registeredDestination: 'Mandaluyong City Center', busPhoto: null, lastUpdated: new Date('2026-02-18T08:45:00').getTime() },
-  { id: 5, busNumber: 'OA-105', route: 'One Ayala - BGC', busCompany: 'JAM Transit', status: 'Active', plateNumber: 'GHI-567', capacity: 45, busAttendant: 'Carlos Reyes', busCompanyEmail: 'operations@jamtransit.com.ph', busCompanyContact: '+63 917 123 4567', registeredDestination: 'Bonifacio Global City, Taguig', busPhoto: null, lastUpdated: new Date('2026-02-16T16:30:00').getTime() },
-  { id: 6, busNumber: 'OA-106', route: 'One Ayala - Alabang', busCompany: 'Partas Transport', status: 'Inactive', plateNumber: 'JKL-890', capacity: 52, busAttendant: 'N/A', busCompanyEmail: 'dispatch@partas.com.ph', busCompanyContact: '+63 921 567 8901', registeredDestination: 'Alabang Town Center, Muntinlupa', busPhoto: null, lastUpdated: new Date('2026-02-15T11:00:00').getTime() },
-  { id: 7, busNumber: 'OA-107', route: 'One Ayala - Pasig', busCompany: 'RRCG Transport', status: 'Active', plateNumber: 'MNO-123', capacity: 50, busAttendant: 'Ana Mendoza', busCompanyEmail: 'info@rrcgtransport.ph', busCompanyContact: '+63 918 234 5678', registeredDestination: 'Pasig City Hall Area', busPhoto: null, lastUpdated: new Date('2026-02-18T07:20:00').getTime() },
-  { id: 8, busNumber: 'OA-108', route: 'One Ayala - Cubao', busCompany: 'Genesis Transport', status: 'Active', plateNumber: 'PQR-456', capacity: 48, busAttendant: 'Ramon Cruz', busCompanyEmail: 'operations@genesistransport.ph', busCompanyContact: '+63 922 678 9012', registeredDestination: 'Araneta Center, Cubao QC', busPhoto: null, lastUpdated: new Date('2026-02-18T11:50:00').getTime() },
-  { id: 9, busNumber: 'OA-109', route: 'One Ayala - Ortigas', busCompany: 'Froehlich Tours', status: 'Maintenance', plateNumber: 'STU-789', capacity: 48, busAttendant: 'N/A', busCompanyEmail: 'contact@froehlich.com.ph', busCompanyContact: '+63 919 345 6789', registeredDestination: 'Ortigas Center, Pasig City', busPhoto: null, lastUpdated: new Date('2026-02-14T13:10:00').getTime() },
-  { id: 10, busNumber: 'OA-110', route: 'One Ayala - BGC', busCompany: 'JAM Transit', status: 'Active', plateNumber: 'VWX-012', capacity: 45, busAttendant: 'Luz Fernandez', busCompanyEmail: 'operations@jamtransit.com.ph', busCompanyContact: '+63 917 123 4567', registeredDestination: 'Bonifacio Global City, Taguig', busPhoto: null, lastUpdated: new Date('2026-02-18T06:30:00').getTime() },
-  { id: 11, busNumber: 'OA-111', route: 'One Ayala - Marikina', busCompany: 'HM Transport', status: 'Active', plateNumber: 'YZA-345', capacity: 42, busAttendant: 'Jose Villaruz', busCompanyEmail: 'support@hmtransport.ph', busCompanyContact: '+63 920 456 7890', registeredDestination: 'Marikina City Center', busPhoto: null, lastUpdated: new Date('2026-02-17T15:40:00').getTime() },
-  { id: 12, busNumber: 'OA-112', route: 'One Ayala - San Juan', busCompany: 'RRCG Transport', status: 'Active', plateNumber: 'BCD-678', capacity: 50, busAttendant: 'Elena Torres', busCompanyEmail: 'info@rrcgtransport.ph', busCompanyContact: '+63 918 234 5678', registeredDestination: 'San Juan City Hall', busPhoto: null, lastUpdated: new Date('2026-02-18T12:15:00').getTime() },
-  { id: 13, busNumber: 'OA-113', route: 'One Ayala - Alabang', busCompany: 'Partas Transport', status: 'Inactive', plateNumber: 'EFG-901', capacity: 52, busAttendant: 'N/A', busCompanyEmail: 'dispatch@partas.com.ph', busCompanyContact: '+63 921 567 8901', registeredDestination: 'Alabang Town Center, Muntinlupa', busPhoto: null, lastUpdated: new Date('2026-02-13T10:00:00').getTime() },
-  { id: 14, busNumber: 'OA-114', route: 'One Ayala - Quezon City', busCompany: 'Genesis Transport', status: 'Active', plateNumber: 'HIJ-234', capacity: 48, busAttendant: 'Ricardo Bonifacio', busCompanyEmail: 'operations@genesistransport.ph', busCompanyContact: '+63 922 678 9012', registeredDestination: 'Quezon City Circle, QC', busPhoto: null, lastUpdated: new Date('2026-02-18T13:00:00').getTime() },
-  { id: 15, busNumber: 'OA-115', route: 'One Ayala - Pasig', busCompany: 'Froehlich Tours', status: 'Active', plateNumber: 'KLM-567', capacity: 48, busAttendant: 'Gloria Martinez', busCompanyEmail: 'contact@froehlich.com.ph', busCompanyContact: '+63 919 345 6789', registeredDestination: 'Pasig City Hall Area', busPhoto: null, lastUpdated: new Date('2026-02-16T09:25:00').getTime() },
-];
-
 function Buses() {
   const [buses, setBuses] = useState([]); // Use empty array [] when API is ready
+  const [archivedBuses, setArchivedBuses] = useState([]);
+  const [selectedBusIds, setSelectedBusIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [selectedBus, setSelectedBus] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('active');
   const [sortBy, setSortBy] = useState('lastUpdated');
   const [sortOrder, setSortOrder] = useState('desc');
   const [loading, setLoading] = useState(true);
@@ -54,12 +42,25 @@ function Buses() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setBuses(initialBuses);
+      setBuses(getBusesData());
+      setArchivedBuses(getArchivedBusesData());
       setLoading(false);
     }, 700);
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      saveBusesData(buses);
+    }
+  }, [buses, loading]);
+
+  useEffect(() => {
+    if (!loading) {
+      saveArchivedBusesData(archivedBuses);
+    }
+  }, [archivedBuses, loading]);
 
   // API Integration - Uncomment when backend is ready
   /*
@@ -91,7 +92,9 @@ function Buses() {
   */
 
   // Filter buses based on search query
-  const filteredBuses = buses.filter(bus => {
+  const sourceBuses = viewMode === 'active' ? buses : archivedBuses;
+
+  const filteredBuses = sourceBuses.filter(bus => {
     const query = searchQuery.toLowerCase();
     return (
       bus.busNumber.toLowerCase().includes(query) ||
@@ -163,6 +166,12 @@ function Buses() {
     setCurrentPage(1);
   };
 
+  const handleViewModeChange = (nextMode) => {
+    setViewMode(nextMode);
+    setCurrentPage(1);
+    setSelectedBusIds([]);
+  };
+
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
     setCurrentPage(1);
@@ -171,6 +180,145 @@ function Buses() {
   const handleSortOrderToggle = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
     setCurrentPage(1);
+  };
+
+  const archiveBusIds = (busIds) => {
+    if (!Array.isArray(busIds) || busIds.length === 0) {
+      return;
+    }
+
+    const idsToArchive = new Set(busIds);
+    const busesToArchive = buses.filter((bus) => idsToArchive.has(bus.id));
+
+    if (busesToArchive.length === 0) {
+      return;
+    }
+
+    const archivedEntries = busesToArchive.map((bus) => ({
+      ...bus,
+      previousStatus: bus.status,
+      status: 'Archived',
+      archivedAt: Date.now(),
+      lastUpdated: Date.now(),
+    }));
+
+    setArchivedBuses((previousArchivedBuses) => [...archivedEntries, ...previousArchivedBuses]);
+    setBuses((previousBuses) => previousBuses.filter((bus) => !idsToArchive.has(bus.id)));
+    setSelectedBusIds((previousSelectedBusIds) => previousSelectedBusIds.filter((id) => !idsToArchive.has(id)));
+
+    if (selectedBus && idsToArchive.has(selectedBus.id)) {
+      closeModal();
+    }
+  };
+
+  const deleteArchivedBusIds = (busIds, options = { confirm: true }) => {
+    if (!Array.isArray(busIds) || busIds.length === 0) {
+      return;
+    }
+
+    const idsToDelete = new Set(busIds);
+
+    if (options.confirm) {
+      const shouldDelete = window.confirm(
+        idsToDelete.size > 1
+          ? `Delete ${idsToDelete.size} archived buses permanently? This action cannot be undone.`
+          : 'Delete this archived bus permanently? This action cannot be undone.'
+      );
+
+      if (!shouldDelete) {
+        return;
+      }
+    }
+
+    setArchivedBuses((previousArchivedBuses) => previousArchivedBuses.filter((bus) => !idsToDelete.has(bus.id)));
+    setSelectedBusIds((previousSelectedBusIds) => previousSelectedBusIds.filter((id) => !idsToDelete.has(id)));
+
+    if (selectedBus && idsToDelete.has(selectedBus.id)) {
+      closeModal();
+    }
+  };
+
+  const unarchiveBusIds = (busIds) => {
+    if (!Array.isArray(busIds) || busIds.length === 0) {
+      return;
+    }
+
+    const idsToRestore = new Set(busIds);
+    const busesToRestore = archivedBuses.filter((bus) => idsToRestore.has(bus.id));
+
+    if (busesToRestore.length === 0) {
+      return;
+    }
+
+    const restoredBuses = busesToRestore.map((bus) => {
+      const { previousStatus, archivedAt, ...restBus } = bus;
+
+      return {
+        ...restBus,
+        status: previousStatus || 'Inactive',
+        lastUpdated: Date.now(),
+      };
+    });
+
+    setBuses((previousBuses) => [...restoredBuses, ...previousBuses]);
+    setArchivedBuses((previousArchivedBuses) => previousArchivedBuses.filter((bus) => !idsToRestore.has(bus.id)));
+    setSelectedBusIds((previousSelectedBusIds) => previousSelectedBusIds.filter((id) => !idsToRestore.has(id)));
+
+    if (selectedBus && idsToRestore.has(selectedBus.id)) {
+      closeModal();
+    }
+  };
+
+  const handleArchiveBus = (busId) => {
+    archiveBusIds([busId]);
+  };
+
+  const handleBatchArchive = () => {
+    archiveBusIds(selectedBusIds);
+  };
+
+  const handleDeleteArchivedBus = (busId) => {
+    deleteArchivedBusIds([busId]);
+  };
+
+  const handleUnarchiveBus = (busId) => {
+    unarchiveBusIds([busId]);
+  };
+
+  const handleBatchDeleteArchived = () => {
+    deleteArchivedBusIds(selectedBusIds);
+  };
+
+  const handleBatchUnarchive = () => {
+    unarchiveBusIds(selectedBusIds);
+  };
+
+  const currentPageBusIds = currentItems.map((bus) => bus.id);
+  const hasCurrentItems = currentPageBusIds.length > 0;
+  const isAllCurrentPageSelected = hasCurrentItems && currentPageBusIds.every((id) => selectedBusIds.includes(id));
+
+  const handleToggleSelectBus = (busId) => {
+    setSelectedBusIds((previousSelectedBusIds) => (
+      previousSelectedBusIds.includes(busId)
+        ? previousSelectedBusIds.filter((id) => id !== busId)
+        : [...previousSelectedBusIds, busId]
+    ));
+  };
+
+  const handleToggleSelectAllCurrent = () => {
+    if (!hasCurrentItems) {
+      return;
+    }
+
+    setSelectedBusIds((previousSelectedBusIds) => {
+      if (isAllCurrentPageSelected) {
+        return previousSelectedBusIds.filter((id) => !currentPageBusIds.includes(id));
+      }
+
+      const selectedSet = new Set(previousSelectedBusIds);
+      currentPageBusIds.forEach((id) => selectedSet.add(id));
+      return Array.from(selectedSet);
+    });
   };
 
   // Handle row click
@@ -217,15 +365,46 @@ function Buses() {
     }));
   };
 
+  const handleBusPhotoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageData = typeof reader.result === 'string' ? reader.result : null;
+
+      setNewBus((prevBus) => ({
+        ...prevBus,
+        busPhoto: imageData,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeBusPhoto = () => {
+    setNewBus((prevBus) => ({
+      ...prevBus,
+      busPhoto: null,
+    }));
+  };
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
-    if (!newBus.busNumber || !newBus.route || !newBus.busCompany || 
-        !newBus.plateNumber || !newBus.capacity || !newBus.busAttendant ||
-        !newBus.busCompanyEmail || !newBus.busCompanyContact || 
-        !newBus.registeredDestination) {
+    if (!newBus.busNumber || !newBus.route || !newBus.busCompany ||
+      !newBus.plateNumber || !newBus.capacity || !newBus.busAttendant ||
+      !newBus.busCompanyEmail || !newBus.busCompanyContact ||
+      !newBus.registeredDestination) {
       alert('Please fill in all required fields');
       return;
     }
@@ -261,7 +440,7 @@ function Buses() {
     };
     setBuses(prev => [...prev, newBusEntry]);
     closeAddModal();
-    
+
     // Show success message
     alert(`Bus ${newBus.busNumber} added successfully!`);
   };
@@ -272,9 +451,12 @@ function Buses() {
       case 'Active': return 'status-completed';
       case 'Maintenance': return 'status-in-progress';
       case 'Inactive': return 'status-pending';
+      case 'Archived': return 'status-archived';
       default: return '';
     }
   };
+
+  const isArchivedView = viewMode === 'archived';
 
   return (
     <main className="content">
@@ -283,60 +465,106 @@ function Buses() {
           <div className="header-content">
             <div>
               <h1>Buses</h1>
-              <p className="subtitle">Manage and track all buses in the fleet</p>
+              <p className="subtitle">Manage active buses, archive removals, and permanently delete archived entries</p>
             </div>
-            <button className="add-bus-btn" onClick={openAddModal}>
-              + Add New Bus
-            </button>
           </div>
         </div>
 
         {/* Search and Sort Controls */}
         <div className="search-sort-controls">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by bus number, route, company, plate, attendant, or status..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
+          <div className="search-sort-group">
+
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder={isArchivedView
+                  ? 'Search archived buses by number, route, company, plate, attendant, or status...'
+                  : 'Search by bus number, route, company, plate, attendant, or status...'}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="search-input"
+              />
+            </div>
+
+            <div className="sort-controls">
+              <label htmlFor="sortBy">Sort by:</label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={handleSortChange}
+                className="sort-select"
+              >
+                <option value="lastUpdated">Last Updated</option>
+                <option value="busNumber">Bus Number</option>
+                <option value="route">Route</option>
+                <option value="busCompany">Company</option>
+                <option value="status">Status</option>
+                <option value="capacity">Capacity</option>
+              </select>
+
+              <button
+                onClick={handleSortOrderToggle}
+                className="sort-order-btn"
+                title={`Currently sorting ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
+              >
+                {sortOrder === 'asc' ? '↑' : '↓'}
+              </button>
+            </div>
           </div>
-          
-          <div className="sort-controls">
-            <label htmlFor="sortBy">Sort by:</label>
-            <select 
-              id="sortBy" 
-              value={sortBy} 
-              onChange={handleSortChange}
-              className="sort-select"
-            >
-              <option value="lastUpdated">Last Updated</option>
-              <option value="busNumber">Bus Number</option>
-              <option value="route">Route</option>
-              <option value="busCompany">Company</option>
-              <option value="status">Status</option>
-              <option value="capacity">Capacity</option>
-            </select>
-            
-            <button 
-              onClick={handleSortOrderToggle}
-              className="sort-order-btn"
-              title={`Currently sorting ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
-            >
-              {sortOrder === 'asc' ? '↑' : '↓'}
-            </button>
+          <div className="bus-actions-toolbar">
+            <div className="view-toggle-group">
+              <button
+                type="button"
+                className={`view-toggle-btn ${!isArchivedView ? 'active' : ''}`}
+                onClick={() => handleViewModeChange('active')}
+              >
+                Active ({buses.length})
+              </button>
+              <button
+                type="button"
+                className={`view-toggle-btn ${isArchivedView ? 'active' : ''}`}
+                onClick={() => handleViewModeChange('archived')}
+              >
+                Archived ({archivedBuses.length})
+              </button>
+            </div>
+
+            {!isArchivedView && (
+              <button className="add-bus-btn" onClick={openAddModal}>
+                + Add New Bus
+              </button>
+            )}
+
+            {selectedBusIds.length > 0 && (
+              <div className="batch-actions-bar">
+                <span>{selectedBusIds.length} selected</span>
+                {isArchivedView ? (
+                  <>
+                    <button type="button" className="table-action-btn restore" onClick={handleBatchUnarchive}>
+                      Unarchive Selected
+                    </button>
+                    <button type="button" className="table-action-btn delete" onClick={handleBatchDeleteArchived}>
+                      Delete Permanently
+                    </button>
+                  </>
+                ) : (
+                  <button type="button" className="table-action-btn archive" onClick={handleBatchArchive}>
+                    Archive Selected
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="error-message" style={{ 
-            padding: '1rem', 
-            backgroundColor: '#f8d7da', 
-            color: '#721c24', 
-            borderRadius: '6px', 
-            marginBottom: '1rem' 
+          <div className="error-message" style={{
+            padding: '1rem',
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            borderRadius: '6px',
+            marginBottom: '1rem'
           }}>
             {error}
           </div>
@@ -345,35 +573,59 @@ function Buses() {
         <div className="table-container">
           <table className="requests-table">
             <colgroup>
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '24%' }} />
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '12%' }} />
               <col style={{ width: '22%' }} />
-              <col style={{ width: '14%' }} />
               <col style={{ width: '18%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '14%' }} />
               <col style={{ width: '8%' }} />
+              <col style={{ width: '14%' }} />
             </colgroup>
             <thead>
               <tr>
+                <th className="center-col">
+                  <input
+                    type="checkbox"
+                    className="table-checkbox"
+                    checked={isAllCurrentPageSelected}
+                    onChange={handleToggleSelectAllCurrent}
+                    disabled={!hasCurrentItems}
+                  />
+                </th>
                 <th>Bus Number</th>
                 <th>Route</th>
                 <th>Bus Company</th>
                 <th className="center-col">Status</th>
                 <th>Plate Number</th>
                 <th className="center-col">Capacity</th>
+                <th className="center-col">Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <TableSkeletonRows rows={6} columns={6} />
+                <TableSkeletonRows rows={6} columns={8} />
               ) : currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
-                    {searchQuery ? 'No buses found matching your search.' : 'No data on the table yet.'}
+                  <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
+                    {searchQuery
+                      ? 'No buses found matching your search.'
+                      : isArchivedView
+                        ? 'No archived buses yet.'
+                        : 'No active buses yet.'}
                   </td>
                 </tr>
               ) : (
                 currentItems.map((bus) => (
                   <tr key={bus.id} onClick={() => handleRowClick(bus)} className="clickable-row">
+                    <td className="center-col" onClick={(event) => event.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        className="table-checkbox"
+                        checked={selectedBusIds.includes(bus.id)}
+                        onChange={() => handleToggleSelectBus(bus.id)}
+                      />
+                    </td>
                     <td className="bus-number">{bus.busNumber}</td>
                     <td>{bus.route}</td>
                     <td>{bus.busCompany}</td>
@@ -384,6 +636,43 @@ function Buses() {
                     </td>
                     <td>{bus.plateNumber}</td>
                     <td className="center-col">{bus.capacity}</td>
+                    <td className="center-col action-cell">
+                      {isArchivedView ? (
+                        <>
+                          <button
+                            type="button"
+                            className="table-action-btn restore"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleUnarchiveBus(bus.id);
+                            }}
+                          >
+                            Unarchive
+                          </button>
+                          <button
+                            type="button"
+                            className="table-action-btn delete"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteArchivedBus(bus.id);
+                            }}
+                          >
+                            Delete Permanently
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className="table-action-btn archive"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleArchiveBus(bus.id);
+                          }}
+                        >
+                          Archive
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
@@ -425,8 +714,8 @@ function Buses() {
 
         {sortedBuses.length > 0 && (
           <div className="table-info">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, sortedBuses.length)} of {sortedBuses.length} buses
-            {searchQuery && ` (filtered from ${buses.length} total)`}
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, sortedBuses.length)} of {sortedBuses.length} {isArchivedView ? 'archived' : 'active'} buses
+            {searchQuery && ` (filtered from ${sourceBuses.length} total)`}
           </div>
         )}
       </div>
@@ -439,12 +728,12 @@ function Buses() {
               <h2>Add New Bus</h2>
               <button className="close-btn" onClick={closeAddModal}>&times;</button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-grid">
                 <div className="form-section">
                   <h3>Bus Information</h3>
-                  
+
                   <div className="form-group">
                     <label htmlFor="busNumber">Bus Number *</label>
                     <input
@@ -499,11 +788,34 @@ function Buses() {
                       <option value="Inactive">Inactive</option>
                     </select>
                   </div>
+
+                  <div className="form-group">
+                    <label htmlFor="busPhoto">Upload Bus Photo</label>
+                    <input
+                      type="file"
+                      id="busPhoto"
+                      name="busPhoto"
+                      accept="image/*"
+                      onChange={handleBusPhotoUpload}
+                    />
+                  </div>
+
+                  {newBus.busPhoto && (
+                    <div className="bus-photo-placeholder add-bus-photo-preview">
+                      <img src={newBus.busPhoto} alt="Bus preview" />
+                    </div>
+                  )}
+
+                  {newBus.busPhoto && (
+                    <button type="button" className="btn-cancel remove-photo-btn" onClick={removeBusPhoto}>
+                      Remove Photo
+                    </button>
+                  )}
                 </div>
 
                 <div className="form-section">
                   <h3>Route Information</h3>
-                  
+
                   <div className="form-group">
                     <label htmlFor="route">Route *</label>
                     <input
@@ -533,7 +845,7 @@ function Buses() {
 
                 <div className="form-section">
                   <h3>Bus Company</h3>
-                  
+
                   <div className="form-group">
                     <label htmlFor="busCompany">Company Name *</label>
                     <input
@@ -576,7 +888,7 @@ function Buses() {
 
                 <div className="form-section highlight-section">
                   <h3>Bus Attendant (Source of Truth)</h3>
-                  
+
                   <div className="form-group">
                     <label htmlFor="busAttendant">Assigned Bus Attendant *</label>
                     <input
@@ -617,7 +929,7 @@ function Buses() {
               <h2>Bus Details</h2>
               <button className="close-btn" onClick={closeModal}>&times;</button>
             </div>
-            
+
             <div className="modal-body">
               <div className="bus-photo-section">
                 <div className="bus-photo-placeholder">
@@ -697,6 +1009,35 @@ function Buses() {
                     * The bus attendant is the primary source of truth for all bus information and operations.
                   </p>
                 </div>
+              </div>
+
+              <div className="modal-actions-row">
+                {selectedBus.status === 'Archived' ? (
+                  <>
+                    <button
+                      type="button"
+                      className="table-action-btn restore"
+                      onClick={() => handleUnarchiveBus(selectedBus.id)}
+                    >
+                      Unarchive
+                    </button>
+                    <button
+                      type="button"
+                      className="table-action-btn delete"
+                      onClick={() => handleDeleteArchivedBus(selectedBus.id)}
+                    >
+                      Delete Permanently
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="table-action-btn archive"
+                    onClick={() => handleArchiveBus(selectedBus.id)}
+                  >
+                    Archive Bus
+                  </button>
+                )}
               </div>
             </div>
           </div>

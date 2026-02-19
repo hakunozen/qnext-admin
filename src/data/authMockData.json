@@ -1,0 +1,10 @@
+{
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "role": "admin"
+  },
+  "errors": {
+    "invalidCredentials": "Invalid credentials"
+  }
+}

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import mockAuthData from '../data/authMockData.json';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -84,14 +85,12 @@ export const loginAPI = async (email, password) => {
           accessToken: 'mock_access_token_' + Date.now(),
           refreshToken: 'mock_refresh_token_' + Date.now(),
           user: {
-            id: 1,
-            name: 'John Doe',
+            ...mockAuthData.user,
             email: email,
-            role: 'admin',
           },
         });
       } else {
-        reject({ response: { data: { message: 'Invalid credentials' } } });
+        reject({ response: { data: { message: mockAuthData.errors.invalidCredentials } } });
       }
     }, 1000);
   });

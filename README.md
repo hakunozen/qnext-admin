@@ -51,6 +51,29 @@ Required values in `.env`:
 
 > `VITE_API_URL` is optional unless you are using additional backend API endpoints.
 
+### Demo Data Files (JSON)
+
+If you are testing locally with temporary data, edit these JSON files:
+
+- `src/data/busesData.json` — bus records used by Buses and Dashboard charts
+- `src/data/activationRequestsData.json` — account activation requests used by Requests page
+- `src/data/authMockData.json` — mock login user profile and auth error message
+
+If changes do not appear right away, clear this local storage key in the browser and refresh:
+
+- `qnext_admin_buses`
+
+#### Reset Demo Data (Quick)
+
+Open browser DevTools Console and run:
+
+```javascript
+localStorage.removeItem('qnext_admin_buses');
+location.reload();
+```
+
+This resets buses back to values in `src/data/busesData.json`.
+
 ### 4. Run the Development Server
 
 ```bash
